@@ -20,6 +20,7 @@ class AccountService(
         it.toDTO()
     }
 
+    @Transactional
     fun createAccount(accountDTO: AccountDTO): AccountDTO {
         val account = accountRepository.findAccountByCardNumber(cardNumber = accountDTO.cardNumber)
         if (account != null) throw CardNumberAlreadyExistsException(accountDTO.cardNumber)
@@ -35,11 +36,12 @@ class AccountService(
         ).toDTO()
     }
 
+    fun getAccountByCardNumber(cardNumber: String) = (accountRepository.findAccountByCardNumber(cardNumber)
+        ?: throw CardNumberNotFoundByNumberException(cardNumber)).toDTO()
 
     @Transactional
     fun getAccountByPinCode(cardNumber: String, pinCode: String): AccountDTO {
-        val account = (accountRepository.findAccountByCardNumber(cardNumber) ?: throw CardNumberNotFoundByNumberException(cardNumber))
-            .toDTO()
+        val account = getAccountByCardNumber(cardNumber)
 
         if (account.pinCode != pinCode)
             throw IncorrectPinCodeException()
